@@ -9,7 +9,7 @@ class Server : public QTcpServer
 public:
     Server(QObject *parent = 0, int port = 0);
     QList<TcpClientSocket*> tcpclientsocketlist;
-    QList<QString*> usernamelist;
+    QList<QString> usernamelist;
 protected:
     void incomingConnection(qintptr socketDescriptor);//只要出现一个新的连接，就会自动调用这个函数
 protected slots:

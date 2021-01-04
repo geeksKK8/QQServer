@@ -47,30 +47,38 @@ void Server::sliotupdateserver(QString msg, int length)
         {
 
             QTcpSocket *item = tcpclientsocketlist.at(i);
-            QString *name = usernamelist.at(i);
+            QString name = usernamelist.at(i);
     //        if(item->write((char*)msg.toUtf8().data(), length) != length)
     //        {
     //            continue;
     //        }
-            if(*name == ptr)
+            if(name == ptr)
                 item->write(msg.toUtf8().data());
         }
     }
     if(msg[0]=="0"){
         QString remain = msg.mid(1);
         QString ptr = remain.split(":")[0];
-        usernamelist.append(&ptr);
+        usernamelist.append(ptr);
+
+        for(int i=0;i<tcpclientsocketlist.count();i++)
+        {
+            QString name = usernamelist.at(i);
+            qDebug()<<usernamelist.at(i);
+            msg+="_"+name;
+        }
+
+        for(int i = 0; i < tcpclientsocketlist.count(); i++)
+        {
+            QTcpSocket *item = tcpclientsocketlist.at(i);
+            item->write(msg.toUtf8().data());
+        }
     }
-    if(msg[0] != "2"){
+    if(msg[0] == "1"){
         qDebug()<<"to all";
     for(int i = 0; i < tcpclientsocketlist.count(); i++)
     {
         QTcpSocket *item = tcpclientsocketlist.at(i);
-//        if(item->write((char*)msg.toUtf8().data(), length) != length)
-//        {
-//            continue;
-//        }
-
         item->write(msg.toUtf8().data());
     }
     }
@@ -86,6 +94,7 @@ void Server::slotclientdisconnect(int descriptor)
         {
             qDebug()<<"delete socket"<<i;
             tcpclientsocketlist.removeAt(i);//如果有客户端断开连接， 就将列表中的套接字删除
+            usernamelist.removeAt(i);
             return;
         }
     }
