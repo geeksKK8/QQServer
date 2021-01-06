@@ -42,20 +42,24 @@ void Server::sliotupdateserver(QString msg, int length)
     if(msg[0]=="2"){
         qDebug()<<"to one";
         QString remain = msg.mid(1);
-        QString ptr = remain.split(":")[0];
+        QString xiaoxi = msg.split("_")[0]+"(私聊)";
+        QString ptr = remain.split("_")[1];
+        qDebug()<<"ptr:"+ptr;
         for(int i = 0; i < tcpclientsocketlist.count(); i++)
         {
 
             QTcpSocket *item = tcpclientsocketlist.at(i);
             QString name = usernamelist.at(i);
+            qDebug()<<"name:"+name;
     //        if(item->write((char*)msg.toUtf8().data(), length) != length)
     //        {
     //            continue;
     //        }
             if(name == ptr)
-                item->write(msg.toUtf8().data());
+                item->write(xiaoxi.toUtf8().data());
         }
     }
+
     if(msg[0]=="0"){
         QString remain = msg.mid(1);
         QString ptr = remain.split(":")[0];
@@ -87,16 +91,23 @@ void Server::sliotupdateserver(QString msg, int length)
 
 void Server::slotclientdisconnect(int descriptor)
 {
+    QString msg;
     for(int i = 0; i < tcpclientsocketlist.count(); i++)
     {
         QTcpSocket *item = tcpclientsocketlist.at(i);
+        msg = "3"+usernamelist.at(i)+":离开了聊天室";
         if(item->socketDescriptor() == descriptor)
         {
             qDebug()<<"delete socket"<<i;
             tcpclientsocketlist.removeAt(i);//如果有客户端断开连接， 就将列表中的套接字删除
-            usernamelist.removeAt(i);
-            return;
+            usernamelist.removeAt(i);                     
+            //return;
         }
+    }    
+    for(int i = 0; i < tcpclientsocketlist.count(); i++)
+    {
+        QTcpSocket *item = tcpclientsocketlist.at(i);
+        item->write(msg.toUtf8().data());
     }
     return;
 }
